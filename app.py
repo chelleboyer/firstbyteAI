@@ -21,8 +21,18 @@ Think through your response step by step.
 
 @cl.on_chat_start  # marks a function that will be executed at the start of a user session
 async def start_chat():
+        res = await cl.AskActionMessage(
+        content="Please select the openAI model you'd like to use:",
+        actions=[
+            cl.Action(name="gpt-3.5-turbo", value="gpt-3.5-turbo", label="GPT-3.5 Turbo"),
+            cl.Action(name="gpt-4", value="gpt-4", label="GPT-4"),
+        ],
+    ).send()
+
+    model_choice = res.get("value") if res else "gpt-3.5-turbo"
+
     settings = {
-        "model": "gpt-3.5-turbo",
+        "model": model_choice,
         "temperature": 0,
         "max_tokens": 500,
         "top_p": 1,
@@ -31,6 +41,8 @@ async def start_chat():
     }
 
     cl.user_session.set("settings", settings)
+
+     await cl.Message(content=f"You've selected **{model_choice}**. Let's start chatting!").send()
 
 
 @cl.on_message  # marks a function that should be run each time the chatbot receives a message from a user
